@@ -1,0 +1,7 @@
+*.wav
+*.reapeaks
+*.vst
+*.vst3
+
+/venv/
+/.idea/
