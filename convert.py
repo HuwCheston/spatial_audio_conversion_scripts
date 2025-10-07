@@ -1,11 +1,11 @@
-import os
+from pathlib import Path
 
 import librosa
 import soundfile as sf
 from pedalboard import load_plugin
 from tqdm import tqdm
 
-# Yes you have to use windows, no i am not sorry
+# Yes you have to use windows, no I am not sorry
 PATH_TO_AB_VST = r"C:\Program Files\Common Files\VST3\Sennheiser AMBEO A-B format converter.vst3"
 SAMPLE_RATE = 24000
 
@@ -20,26 +20,25 @@ PARAMETERS = dict(
 )
 PLUGIN = load_plugin(PATH_TO_AB_VST, parameter_values=PARAMETERS)
 
-MIC_DIR = "data/mic"
-OUTPUT_DIR = "data/foa"
+MIC_DIR = Path("data/mic")
+OUTPUT_DIR = Path("data/foa")
 
 
 def main():
-    files = [f for f in os.listdir(MIC_DIR) if f != ".gitkeep"]
+    files = [f for f in MIC_DIR.rglob("*.wav")]
 
-    for f in tqdm(files, desc="Processing files..."):
+    for full_path in tqdm(files, desc="Processing files..."):
         # Get the file paths
-        full_path = os.path.join(MIC_DIR, f)
-        out_path = os.path.join(OUTPUT_DIR, f)
+        out_path = Path(OUTPUT_DIR) / full_path.name
 
         # Silently skip over files that already exist
-        if os.path.isfile(out_path):
+        if out_path.exists():
             continue
 
         # Load the audio, process with the plugin, and dump the output audio
         loaded, _ = librosa.load(full_path, mono=False, sr=SAMPLE_RATE)
         out = PLUGIN.process(loaded, sample_rate=SAMPLE_RATE)
-        sf.write(os.path.join(OUTPUT_DIR, f), out.T, SAMPLE_RATE)
+        sf.write(out_path, out.T, SAMPLE_RATE)
 
 
 if __name__ == "__main__":
