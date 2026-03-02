@@ -25,14 +25,14 @@ def main():
 
     for full_path in tqdm(files, desc="Processing files..."):
         # Get the file paths
-        out_path = Path(OUTPUT_DIR) / full_path.name
+        out_path = Path(OUTPUT_DIR) / full_path.parent.stem
+        out_file = out_path / full_path.name
 
-        # Create folder if not existing
-        if not out_path.parent.exists():
-            out_path.parent.mkdir(parents=True, exist_ok=True)
+        if not out_path.exists():
+            out_path.mkdir(parents=True, exist_ok=True)
 
         # Silently skip over files that already exist
-        if out_path.exists():
+        if out_file.exists():
             continue
 
         # Load the audio, process with the plugin, and dump the output audio
@@ -40,7 +40,7 @@ def main():
         out = PLUGIN.process(loaded, sample_rate=SAMPLE_RATE)
 
         # Last two channels are silent
-        sf.write(out_path, out[:2, :].T, SAMPLE_RATE)
+        sf.write(out_file, out[:2, :].T, SAMPLE_RATE)
 
 
 if __name__ == "__main__":
