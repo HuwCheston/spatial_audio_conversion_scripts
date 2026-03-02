@@ -38,7 +38,9 @@ def main():
         # Load the audio, process with the plugin, and dump the output audio
         loaded, _ = librosa.load(full_path, mono=False, sr=SAMPLE_RATE)
         out = PLUGIN.process(loaded, sample_rate=SAMPLE_RATE)
-        sf.write(out_path, out.T, SAMPLE_RATE)
+
+        # Last two channels are silent
+        sf.write(out_path, out[:2, :].T, SAMPLE_RATE)
 
 
 if __name__ == "__main__":
